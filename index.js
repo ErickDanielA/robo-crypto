@@ -47,6 +47,10 @@ async function start() {
         console.log("aguardar");
 }
 
+async function newOrder(){
+    
+}
+
 setInterval(start, 3000);
 
 start();
