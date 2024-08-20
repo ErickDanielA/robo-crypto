@@ -43,12 +43,12 @@ async function start() {
         qntbuy++;
         valcompra = price;
     }
-    else if (price >= sell_price && isOpened == true) {
+    else if (price >= sell_price && isOpened == true && price >= valcompra) {
         isOpened = false;
         console.log("vender");
         newOrder(symbol, quantity, "sell");
         qntsell++;
-        money = price - valcompra
+        money += price - valcompra
     }
     else
         console.log("aguardar");
@@ -73,7 +73,7 @@ async function newOrder(symbol, quantity, side) {
             {headers: {"X-MBX-APIKEY" : API_KEY}}
         )
 
-        console.log(data);
+        // console.log(data);
     }
     catch(err){
         console.error(err.response.data);
