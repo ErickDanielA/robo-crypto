@@ -2,14 +2,15 @@ const crypto = require("crypto");
 const axios = require("axios");
 
 const symbol = "BTCUSDT";
-const buy_price = 59235;
-const sell_price = 59329;
+const buy_price = 61200;
+const sell_price = 61250;
 const quantity = "0.001";
 
-const API_URL = "https://testnet.binance.vision";
+const API_URL = process.env.STREAM_URL;
 //API Binance TEST
 const API_KEY = "4NMo1palHRADOoSQNR8jHrPNIDtdjBv6CSmFZml6tmWlVQmberkejH7iJ0ZfdJq6";
 const SECRET_KEY = "WeMC0Zrx5EOJ2uXZnxBe2VSN7PeUodE4d6Pau75dYmWDsh6OmUPEr9Fn2lWMO9CO";
+const profitability = parseFloat(process.env.PROFITABILITY);
 
 let qntsell = 0;
 let qntbuy = 0;
@@ -36,14 +37,14 @@ async function start() {
     console.log("SMA: " + sma);
     console.log("Is Opened? " + isOpened);
 
-    if (price <= 1000000 && isOpened == false) {
+    if (price <= buy_price && isOpened == false) {
         isOpened = true;
         console.log("comprar");
         newOrder(symbol, quantity, "buy");
         qntbuy++;
         valcompra = price;
     }
-    else if (price >= sell_price && isOpened == true) {
+    else if (price >= sell_price && isOpened == true && price <= valcompra * profitability) {
         isOpened = false;
         console.log("vender");
         newOrder(symbol, quantity, "sell");
