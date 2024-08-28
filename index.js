@@ -1,12 +1,23 @@
 const crypto = require("crypto");
 const axios = require("axios");
 
+const https = require("https");
+
 const symbol = "BTCUSDT";
 const quantity = "0.001";
 
 const API_URL = "https://testnet.binance.vision"; // Use este URL para testar em ambiente de teste da Binance
 const API_KEY = "4NMo1palHRADOoSQNR8jHrPNIDtdjBv6CSmFZml6tmWlVQmberkejH7iJ0ZfdJq6";
 const SECRET_KEY = "WeMC0Zrx5EOJ2uXZnxBe2VSN7PeUodE4d6Pau75dYmWDsh6OmUPEr9Fn2lWMO9CO";
+
+const axiosInstance = axios.create({
+    baseURL: API_URL,
+    httpsAgent: new https.Agent({ keepAlive: true }), // Agente para manter a conexão viva
+    timeout: 15000, // Timeout de 15 segundos
+    headers: {
+        "X-MBX-APIKEY": API_KEY,
+    },
+});
 
 let isOpened = false;
 let valcompra = 0;
@@ -25,8 +36,8 @@ function calculateEMA(prices, period) {
     return emaArray;
 }
 
-async function start() {
-    const { data } = await axios.get(API_URL + "/api/v3/klines?limit=50&interval=15m&symbol=" + symbol);
+async function start() { try {    
+    const { data } = await axiosInstance.get(API_URL + "/api/v3/klines?limit=50&interval=15m&symbol=" + symbol);
     const prices = data.map(candle => parseFloat(candle[4]));
     const price = prices[prices.length - 1];
 
@@ -52,7 +63,13 @@ async function start() {
         money += price - valcompra; // Calcular lucro ou perda
     } else {
         console.log("Aguardar...");
+        console.log(isOpened);
     }
+} catch (err) {
+    console.error("Erro ao conectar com a API da Binance: ", err.message);
+    console.log("Tentando novamente em 10 segundos...");
+    setTimeout(start, 10000); // Espera 10 segundos antes de tentar novamente
+}
 }
 
 async function newOrder(symbol, quantity, side) {
@@ -69,6 +86,7 @@ async function newOrder(symbol, quantity, side) {
 
     const orderWithSignature = query + `&signature=${signature}`;
 
+    
     try {
         const { data } = await axios.post(
             API_URL + "/api/v3/order",
@@ -78,7 +96,9 @@ async function newOrder(symbol, quantity, side) {
 
         console.log(data);
     } catch (err) {
-        console.error(err.response.data);
+        console.error("Erro ao finalizar a transação: ", err.message);
+        console.log("Tentando novamente em 10 segundos...");
+        setTimeout(start, 10000); // Espera 10 segundos antes de tentar novamente
     }
 }
 
