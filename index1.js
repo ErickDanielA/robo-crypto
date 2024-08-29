@@ -94,7 +94,7 @@ async function newOrder(symbol, quantity, side) {
     order.signature = signature;
 
     try {
-        const { data } = await axiosInstance.post(
+        const { data } = await axios.post(
             API_URL + "/api/v3/order",
             new URLSearchParams(order).toString(),
             { headers: { "X-MBX-APIKEY": API_KEY } }
