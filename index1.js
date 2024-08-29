@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const axios = require("axios");
+const https = require("https");
 
 const symbol = "BTCUSDT";
 const buy_price = 61200;
@@ -11,6 +12,13 @@ const API_URL = "https://testnet.binance.vision";
 const API_KEY = "4NMo1palHRADOoSQNR8jHrPNIDtdjBv6CSmFZml6tmWlVQmberkejH7iJ0ZfdJq6";
 const SECRET_KEY = "WeMC0Zrx5EOJ2uXZnxBe2VSN7PeUodE4d6Pau75dYmWDsh6OmUPEr9Fn2lWMO9CO";
 const profitability = parseFloat(process.env.PROFITABILITY);
+
+const axiosInstance = axios.create({
+    baseURL: API_URL,
+    timeout: 60000, //optional
+    httpsAgent: new https.Agent({ keepAlive: true }),
+    headers: { "X-MBX-APIKEY": API_KEY }
+});
 
 let qntsell = 0;
 let qntbuy = 0;
@@ -38,7 +46,7 @@ function calculateEMA(prices, period) {
 }
 
 async function start() {
-    const { data } = await axios.get(API_URL + "/api/v3/klines?limit=21&interval=15m&symbol=" + symbol);
+    const { data } = await axiosInstance.get(API_URL + "/api/v3/klines?limit=21&interval=15m&symbol=" + symbol);
     const prices = data.map(candle => parseFloat(candle[4]));
     const price = prices[prices.length - 1];
     const candle = data[data.length - 1];
@@ -86,7 +94,7 @@ async function newOrder(symbol, quantity, side) {
     order.signature = signature;
 
     try {
-        const { data } = await axios.post(
+        const { data } = await axiosInstance.post(
             API_URL + "/api/v3/order",
             new URLSearchParams(order).toString(),
             { headers: { "X-MBX-APIKEY": API_KEY } }

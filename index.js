@@ -1,6 +1,5 @@
 const crypto = require("crypto");
 const axios = require("axios");
-
 const https = require("https");
 
 const symbol = "BTCUSDT";
@@ -88,7 +87,7 @@ async function newOrder(symbol, quantity, side) {
 
     
     try {
-        const { data } = await axios.post(
+        const { data } = await axiosInstance.post(
             API_URL + "/api/v3/order",
             orderWithSignature,
             { headers: { "X-MBX-APIKEY": API_KEY } }
