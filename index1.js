@@ -34,12 +34,19 @@ function calcSMA(data) {
 
 // Função para calcular a Média Móvel Exponencial (EMA)
 function calculateEMA(prices, period) {
-    const k = 2 / (period + 1);
-    let emaArray = [prices[0]]; // Inicializa o EMA com o primeiro preço
+    const k = 2 / (period + 1);  // Fator de suavização
+    let emaArray = [];  // Array para armazenar os valores da EMA
 
-    for (let i = 1; i < prices.length; i++) {
-        const ema = prices[i] * k + emaArray[i - 1] * (1 - k);
-        emaArray.push(ema);
+    // Calcular a SMA inicial para o primeiro valor da EMA
+    const initialSMA = prices.slice(0, period).reduce((acc, price) => acc + price, 0) / period;
+    emaArray.push(initialSMA);
+
+    // Calcular a EMA para cada ponto de dados subsequente
+    for (let i = period; i < prices.length; i++) {
+        const currentPrice = prices[i];
+        const previousEMA = emaArray[emaArray.length - 1];
+        const currentEMA = currentPrice * k + previousEMA * (1 - k);
+        emaArray.push(currentEMA);
     }
 
     return emaArray;
@@ -57,7 +64,7 @@ async function start() {
 
     // Calcula EMAs curta e longa
     const shortEMA = calculateEMA(prices, 12);
-    const longEMA = calculateEMA(prices, 26);
+    const longEMA = calculateEMA(prices, 21);
 
     const sma = calcSMA(data);
     console.log("SMA: " + sma);
@@ -79,6 +86,9 @@ async function start() {
     }
     else
         console.log("aguardar");
+        // console.log(shortEMA);
+        // console.log(data);
+        // console.log("Long: "+ longEMA);
 }
 
 async function newOrder(symbol, quantity, side) {
@@ -107,6 +117,6 @@ async function newOrder(symbol, quantity, side) {
     }
 }
 
-setInterval(start, 3000);
+setInterval(start, 3000)
 
 start();
