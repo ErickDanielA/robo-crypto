@@ -1,3 +1,4 @@
+//Adiciona o módulo crypto
 const crypto = require("crypto");
 const axios = require("axios");
 const https = require("https");
@@ -70,14 +71,14 @@ async function start() {
     console.log("SMA: " + sma);
     console.log(isOpened);
 
-    if (shortEMA[shortEMA.length - 1] > longEMA[longEMA.length - 1] && !isOpened) {
+    if (shortEMA[shortEMA.length - 1] < longEMA[longEMA.length - 1] && !isOpened) {
         isOpened = true;
         console.log("comprar");
         newOrder(symbol, quantity, "buy");
         qntbuy++;
         valcompra = price;
     }
-    else if (shortEMA[shortEMA.length - 1] < longEMA[longEMA.length - 1] && isOpened) {
+    else if (shortEMA[shortEMA.length - 1] > longEMA[longEMA.length - 1] && isOpened) {
         isOpened = false;
         console.log("vender");
         newOrder(symbol, quantity, "sell");
@@ -86,9 +87,10 @@ async function start() {
     }
     else
         console.log("aguardar");
-        // console.log(shortEMA);
-        // console.log(data);
-        // console.log("Long: "+ longEMA);
+        // console.log("ShortEMA: "+shortEMA[shortEMA.length - 1]);
+        // console.log("Long: "+ longEMA[longEMA.length - 1]);
+        // let ma = shortEMA[shortEMA.length - 1] < longEMA[longEMA.length - 1] && !isOpened;
+        // console.log(ma);
 }
 
 async function newOrder(symbol, quantity, side) {
