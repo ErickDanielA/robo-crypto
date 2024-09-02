@@ -2,6 +2,7 @@
 const crypto = require("crypto");
 const axios = require("axios");
 const https = require("https");
+const controllerFInancas = require("./app/controllers/tabela.controller");
 
 const symbol = "BTCUSDT";
 const buy_price = 61200;
@@ -26,6 +27,9 @@ let qntbuy = 0;
 let isOpened = false;
 let valcompra = 0;
 let money = 0;
+let BTC_BUY = 0;
+let BTC_SELL = 0;
+let hora_compra = Date.now();
 
 function calcSMA(data) {
     const closes = data.map(candle => parseFloat(candle[4]));
@@ -77,20 +81,25 @@ async function start() {
         newOrder(symbol, quantity, "buy");
         qntbuy++;
         valcompra = price;
+        BTC_BUY = quantity * price;
+        hora_compra = Date.now();
+
     }
     else if (shortEMA[shortEMA.length - 1] > longEMA[longEMA.length - 1] && isOpened) {
         isOpened = false;
         console.log("vender");
         newOrder(symbol, quantity, "sell");
         qntsell++;
-        money += price - valcompra
+        money += price * quantity - valcompra * quantity;
+        BTC_SELL = quantity * price;
+        controllerFInancas.create(valcompra, price, BTC_BUY, BTC_SELL, money, hora_compra);
     }
     else
         console.log("aguardar");
-        // console.log("ShortEMA: "+shortEMA[shortEMA.length - 1]);
-        // console.log("Long: "+ longEMA[longEMA.length - 1]);
-        // let ma = shortEMA[shortEMA.length - 1] < longEMA[longEMA.length - 1] && !isOpened;
-        // console.log(ma);
+    // console.log("ShortEMA: "+shortEMA[shortEMA.length - 1]);
+    // console.log("Long: "+ longEMA[longEMA.length - 1]);
+    // let ma = shortEMA[shortEMA.length - 1] < longEMA[longEMA.length - 1] && !isOpened;
+    // console.log(ma);
 }
 
 async function newOrder(symbol, quantity, side) {
@@ -109,7 +118,13 @@ async function newOrder(symbol, quantity, side) {
         const { data } = await axios.post(
             API_URL + "/api/v3/order",
             new URLSearchParams(order).toString(),
-            { headers: { "X-MBX-APIKEY": API_KEY } }
+            {
+                headers: {
+                    "X-MBX-APIKEY": API_KEY,
+
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
+            }
         )
 
         // console.log(data);

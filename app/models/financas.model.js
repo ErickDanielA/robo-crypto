@@ -1,24 +1,27 @@
 module.exports = (sequelize, Sequelize) => {
-    const Tutorial = sequelize.define("tutorial", {
+    const Financas = sequelize.define("financas", {
         id: {
             type: Sequelize.INTEGER,
             autoIncrement: true,
             primaryKey: true
         },
         BTC_VALOR_BUY: {
-            type: Sequelize.STRING
+            type: Sequelize.DECIMAL
         },
         BTC_VALOR_SELL: {
-            type: Sequelize.BOOLEAN
+            type: Sequelize.DECIMAL
         },
         BTC_BUY: {
-            type: Sequelize.STRING
+            type: Sequelize.DECIMAL
         },
         BTC_SELL: {
-            type: Sequelize.STRING
+            type: Sequelize.DECIMAL
         },
         LUCRO: {
             type: Sequelize.DECIMAL
+        },
+        HORA_COMPRA: {
+            type: Sequelize.DATE
         }
         
     },
@@ -27,5 +30,5 @@ module.exports = (sequelize, Sequelize) => {
         // tableName: 'tutorials' // Especifica o nome da tabela, caso seja diferente do nome do modelo
       });
 
-    return Tutorial;
+    return Financas;
 };

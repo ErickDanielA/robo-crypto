@@ -4,7 +4,6 @@ const Sequelize = require("sequelize");
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
-  operatorsAliases: false,
 
   pool: {
     max: dbConfig.pool.max,
@@ -19,8 +18,6 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.buy = require("./tabelaBuySell.js")(sequelize, Sequelize);
-db.sell = require("./tabelaBuySell.js")(sequelize, Sequelize);
-db.lucro = require("./tabelaBuySell.js")(sequelize, Sequelize);
+db.financas = require("./financas.model.js")(sequelize, Sequelize);
 
 module.exports = db;
